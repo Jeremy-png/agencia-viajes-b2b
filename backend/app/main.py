@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from app.database.database import Base, engine
-from app.routers import vuelos
 from app.routers import providers
 from app.models.busqueda import Busqueda
 from app.models.reserva import Reserva
 from app.routers import reservas
-
+from app.routers import reservas_vuelo
+from app.models.reserva_vuelo import ReservaVuelo
 
 Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
 
-app.include_router(vuelos.router, prefix="/vuelos", tags=["Vuelos"])
+app.include_router(reservas_vuelo.router, prefix="/reservas-vuelo", tags=["Reservas Vuelo"])
 
 @app.get("/")
 def root():

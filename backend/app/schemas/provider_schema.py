@@ -7,7 +7,7 @@ class ProviderCreate(BaseModel):
     Define el JSON que el cliente DEBE enviar para crear un proveedor.
     """
     name: str = Field(..., min_length=2, max_length=100)
-    provider_type: Literal["AIRLINE", "HOTEL"]
+    provider_type: Literal["HOTEL"]
     base_url: str = Field(..., min_length=5, max_length=255)
     is_active: bool = True
 
