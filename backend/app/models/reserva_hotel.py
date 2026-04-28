@@ -19,3 +19,14 @@ class ReservaHotel(Base):
 
     precio_final_noche = Column(Float, nullable=False)
     moneda = Column(String(10), nullable=False)
+
+    noches = Column(Integer, nullable=False)
+    total = Column(Float, nullable=False)   
+
+    precio_base_noche = Column(Float, nullable=False)
+    markup_percent = Column(Float, nullable=False)
+    total_base = Column(Float, nullable=False)
+
+    room_id = Column(Integer, nullable=False)
+    provider_total_amount = Column(Float, nullable=False)
+    provider_status = Column(String(20), nullable=False)

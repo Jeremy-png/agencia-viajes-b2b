@@ -1,16 +1,19 @@
 # Python
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.mypy_cache/
 
-# Virtual env
-venv/
-.env
-
-# OS / IDE
-.DS_Store
+# VS Code / IDE
 .vscode/
+.idea/
 
 # Logs
 *.log
+
+# OS
+.DS_Store
+Thumbs.db

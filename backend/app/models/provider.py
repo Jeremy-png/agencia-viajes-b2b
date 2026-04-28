@@ -17,3 +17,6 @@ class Provider(Base):
     # Comisión/markup de la agencia para este proveedor:
     # Ejemplo: 0.10 = 10% adicional
     agency_markup_percent = Column(Float, default=0.0, nullable=False)
+
+    ws_email = Column(String(150), nullable=True)
+    ws_password = Column(String(150), nullable=True)

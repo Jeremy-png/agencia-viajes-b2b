@@ -6,8 +6,6 @@ from app.models.reserva import Reserva
 from app.routers import reservas
 from app.routers import reservas_hotel
 
-from app.models.reserva_hotel import ReservaHotel
-
 Base.metadata.create_all(bind=engine)
 
 
@@ -15,7 +13,7 @@ app = FastAPI()
 
 app.include_router(hoteles.router, prefix="/hoteles", tags=["Hoteles"])
 
-app.include_router(reservas_hotel.router, prefix="/reservas-hotel", tags=["Reservas Hotel"])
+app.include_router(reservas_hotel.router, prefix="/reservas/hotel", tags=["Reservas Hotel"])
 
 @app.get("/")
 def root():

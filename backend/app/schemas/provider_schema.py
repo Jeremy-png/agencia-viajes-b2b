@@ -14,6 +14,9 @@ class ProviderCreate(BaseModel):
     # 0.10 = 10%. Guardaremos porcentaje en formato 0..1
     agency_markup_percent: float = Field(..., ge=0, le=1)
 
+    ws_email: str | None = None
+    ws_password: str | None = None
+
 class ProviderResponse(BaseModel):
     """
     Response schema (salida):
@@ -26,6 +29,9 @@ class ProviderResponse(BaseModel):
     base_url: str
     is_active: bool
     agency_markup_percent: float
+
+    ws_email: str | None = None
+    ws_password: str | None = None
 
     class Config:
         from_attributes = True
