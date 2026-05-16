@@ -1,19 +1,72 @@
+# =========================
+# Secrets / Environment
+# =========================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# =========================
 # Python
-venv/
+# =========================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# VS Code / IDE
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Node / Frontend
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# =========================
+# Logs / Databases locales
+# =========================
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================
+# Email simulado (lote 6)
+# =========================
+outgoing_emails/
+
+# =========================
+# IDEs / Editores
+# =========================
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# Logs
-*.log
-
-# OS
+# =========================
+# Sistema operativo
+# =========================
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# =========================
+# PDFs generados (lote 6)
+# =========================
+generated_pdfs/

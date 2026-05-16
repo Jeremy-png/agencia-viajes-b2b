@@ -1,18 +1,23 @@
+"""
+Configuración SQLAlchemy.
+
+DATABASE_URL ya NO está hardcoded — viene de app.core.config.settings,
+que la lee del .env.
+"""
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
-DATABASE_URL = "mysql+pymysql://root:root@localhost/agencia_db"
+from app.core.config import settings
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-#Creación de la función para obtener la sesión de la base de datos
-from sqlalchemy.orm import Session
 
 def get_db():
+    """Dependency de FastAPI: abre y cierra sesión por request."""
     db = SessionLocal()
     try:
         yield db
