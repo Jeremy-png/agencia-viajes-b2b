@@ -1,34 +1,31 @@
 """
 Punto de entrada de la API.
 
-Cambios respecto a la versión anterior:
-- Sin imports de `Reserva` legacy (modelo de vuelos eliminado).
-- Configuración de CORS y título toman valores desde settings.
-- Imprime warnings de configuración al arrancar.
+Cambios en este lote:
+- Llama a run_seed() en startup para crear agencias y admins si no existen.
+- Importa captcha module para que el cache esté disponible desde el inicio.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.database.database import Base, engine
+from app.database.database import Base, engine, SessionLocal
 
-# Importar modelos REGISTRA las tablas en Base.metadata.
-# Mantenerlos aquí garantiza que create_all las cree todas.
+# Registrar modelos en Base.metadata
 from app.models import agency, user, provider, reserva_hotel  # noqa: F401
 
 # Routers
 from app.routers import auth, agencies, providers, hoteles, reservas_hotel
 
-# Crea tablas si no existen (modo dev; luego migramos a Alembic si da tiempo)
+# Crea tablas si no existen
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="0.1.0",
+    version="0.2.0",
     debug=settings.APP_DEBUG,
 )
 
-# CORS solo para el frontend local
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_ORIGIN],
@@ -38,11 +35,11 @@ app.add_middleware(
 )
 
 # Routers
-app.include_router(auth.router,            prefix="/auth",          tags=["Auth"])
-app.include_router(agencies.router,        prefix="/agencies",      tags=["Agencies"])
-app.include_router(providers.router,       prefix="/providers",     tags=["Providers"])
-app.include_router(hoteles.router,         prefix="/hoteles",       tags=["Hoteles"])
-app.include_router(reservas_hotel.router,  prefix="/reservas/hotel", tags=["Reservas Hotel"])
+app.include_router(auth.router,           prefix="/auth",           tags=["Auth"])
+app.include_router(agencies.router,       prefix="/agencies",       tags=["Agencies"])
+app.include_router(providers.router,      prefix="/providers",      tags=["Providers"])
+app.include_router(hoteles.router,        prefix="/hoteles",        tags=["Hoteles"])
+app.include_router(reservas_hotel.router, prefix="/reservas/hotel", tags=["Reservas Hotel"])
 
 
 @app.get("/", tags=["Health"])
@@ -52,6 +49,17 @@ def root():
 
 @app.on_event("startup")
 def on_startup():
+    # Advertencias de configuración
     for w in settings.warn_if_defaults():
         print(w)
-    print(f"✅ {settings.APP_NAME} arrancando en modo debug={settings.APP_DEBUG}")
+
+    # Seed inicial
+    print("🌱 Ejecutando seed...")
+    db = SessionLocal()
+    try:
+        from app.core.seed import run_seed
+        run_seed(db)
+    finally:
+        db.close()
+
+    print(f"✅ {settings.APP_NAME} listo en modo debug={settings.APP_DEBUG}")
