@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
 from app.database.database import Base
 
 class Provider(Base):
@@ -13,7 +13,8 @@ class Provider(Base):
     provider_type = Column(String(10), nullable=False)  # AIRLINE | HOTEL
     base_url = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-
+    agency_id = Column(Integer, ForeignKey("agencies.agency_id"), nullable=False)
+    
     # Comisión/markup de la agencia para este proveedor:
     # Ejemplo: 0.10 = 10% adicional
     agency_markup_percent = Column(Float, default=0.0, nullable=False)

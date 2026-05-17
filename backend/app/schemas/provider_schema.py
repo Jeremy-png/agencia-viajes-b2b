@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal
+from typing import Literal, Optional
 
 class ProviderCreate(BaseModel):
     """
@@ -17,6 +17,16 @@ class ProviderCreate(BaseModel):
     ws_email: str | None = None
     ws_password: str | None = None
 
+class ProviderUpdate(BaseModel):
+# Todos opcionales porque en PUT/PATCH no siempre mandas todo
+    name: Optional[str] = Field(None, min_length=2, max_length=100)
+    provider_type: Optional[Literal["HOTEL"]] = None
+    base_url: Optional[str] = Field(None, min_length=5, max_length=255)
+    is_active: Optional[bool] = None
+    agency_markup_percent: Optional[float] = Field(None, ge=0, le=1)
+    ws_email: Optional[str] = None
+    ws_password: Optional[str] = None
+
 class ProviderResponse(BaseModel):
     """
     Response schema (salida):
@@ -31,7 +41,6 @@ class ProviderResponse(BaseModel):
     agency_markup_percent: float
 
     ws_email: str | None = None
-    ws_password: str | None = None
 
     class Config:
         from_attributes = True

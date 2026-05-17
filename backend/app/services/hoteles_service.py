@@ -16,10 +16,6 @@ def g(obj: dict, *keys, default=None):
             return obj[k]
     return default
 
-def dt(d):
-    """Convierte date -> string con hora para .NET (DateTime)."""
-    return f"{d}T00:00:00"
-
 def _get_ciudad_id(c: dict) -> int | None:
     # acepta "id" o "Id"
     v = c.get("id", c.get("Id"))
@@ -50,34 +46,49 @@ def _find_city_id(cities: list[dict], destino: str) -> int | None:
 
     return None
 
-def buscar_hoteles_service(data: HotelBusqueda, db: Session) -> HotelBusquedaResponse:
+def buscar_hoteles_service(data: HotelBusqueda, db: Session, agency_id: int) -> HotelBusquedaResponse:
     providers = (
-        db.query(Provider)
-        .filter(Provider.provider_type == "HOTEL", Provider.is_active == True)
-        .all()
+    db.query(Provider)
+    .filter(
+        Provider.provider_type == "HOTEL",
+        Provider.is_active == True,
+        Provider.agency_id == agency_id,
     )
+    .all()
+)
+
+    # ✅ Si no hay providers activos, esto NO es "no hay hoteles", es "no hay configuración"
+    if not providers:
+        raise HTTPException(
+            status_code=400,
+            detail="No hay proveedores HOTEL activos configurados. Revisa /providers (is_active, provider_type)."
+        )
 
     resultados: list[HotelResultado] = []
+    errores: list[str] = []
 
     for p in providers:
+        # 0) Validar provider configurado
         if not p.base_url or not p.ws_email or not p.ws_password:
-            # si un provider no está bien configurado, lo saltamos
+            errores.append(f"{p.name} (id={p.provider_id}): provider sin base_url o credenciales")
             continue
 
         # 1) login
         try:
             token = hotelchain_login(p.base_url, p.ws_email, p.ws_password)
         except Exception as e:
-            # saltamos provider caído
+            errores.append(f"{p.name} (id={p.provider_id}): login falló -> {str(e)}")
             continue
 
-        # 2) obtener cities y resolver cityId por nombre (destino)
+        # 2) obtener cities y resolver cityId
         try:
             cities = hotelchain_get_cities(p.base_url, token)
             city_id = _find_city_id(cities, data.destino)
             if not city_id:
+                errores.append(f"{p.name} (id={p.provider_id}): destino '{data.destino}' no encontrado en cities")
                 continue
-        except Exception:
+        except Exception as e:
+            errores.append(f"{p.name} (id={p.provider_id}): get_cities falló -> {str(e)}")
             continue
 
         # 3) llamar search real
@@ -91,30 +102,34 @@ def buscar_hoteles_service(data: HotelBusqueda, db: Session) -> HotelBusquedaRes
             "RoomTypeId": data.room_type_id,
             "MinRating": data.min_rating,
         }
-
+        
         try:
             rooms_raw = hotelchain_search_rooms(p.base_url, token, search_payload)
 
-            # soporta respuesta como lista o como objeto { data: [...] }
             if isinstance(rooms_raw, dict):
                 rooms = rooms_raw.get("data") or rooms_raw.get("results") or rooms_raw.get("items") or []
             else:
                 rooms = rooms_raw
-            print("DEBUG rooms sample:", str(rooms)[:300])
+
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Search falló en {p.name}: {str(e)}")
 
-        # 4) mapear rooms → resultados de agencia (aplicando markup)
+        # 4) mapear rooms → resultados (aplicando markup)
         markup = float(p.agency_markup_percent or 0.0)
 
         for r in rooms:
-            room_id = int(g(r, "id", "Id"))
-            hotel_id = int(g(r, "hotelId", "HotelId"))
-            hotel_name = str(g(r, "hotel", "Hotel"))
-            room_name = str(g(r, "nameOrNumber", "NameOrNumber"))
-            room_type = str(g(r, "roomType", "RoomType"))
-            max_guests = int(g(r, "maxGuests", "MaxGuests"))
-            base_price = float(g(r, "basePricePerNight", "BasePricePerNight"))
+            try:
+                room_id = int(g(r, "id", "Id"))
+                hotel_id = int(g(r, "hotelId", "HotelId"))
+                hotel_name = str(g(r, "hotel", "Hotel"))
+                room_name = str(g(r, "nameOrNumber", "NameOrNumber"))
+                room_type = str(g(r, "roomType", "RoomType"))
+                max_guests = int(g(r, "maxGuests", "MaxGuests"))
+                base_price = float(g(r, "basePricePerNight", "BasePricePerNight"))
+            except Exception as e:
+                # Si un room viene raro, no mates todo: solo lo saltas
+                errores.append(f"{p.name} (id={p.provider_id}): room inválido en mapping -> {str(e)} | data={str(r)[:200]}")
+                continue
 
             final_price = round(base_price * (1 + markup), 2)
 
@@ -134,6 +149,18 @@ def buscar_hoteles_service(data: HotelBusqueda, db: Session) -> HotelBusquedaRes
                     moneda="USD",
                 )
             )
+
+    # ✅ Ordenar resultados por precio final (barato primero)
+    resultados.sort(key=lambda x: x.precio_final_noche)
+
+    # ✅ Si no hubo resultados y hubo errores: no lo ocultes
+    if not resultados and errores:
+        raise HTTPException(
+            status_code=502,
+            detail={"msg": "Todos los proveedores fallaron o no devolvieron resultados", "errores": errores}
+        )
+
+    resultados.sort(key=lambda x: x.precio_final_noche)
 
     return HotelBusquedaResponse(
         destino=data.destino,

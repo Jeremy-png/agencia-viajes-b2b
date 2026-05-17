@@ -3,6 +3,7 @@ from datetime import date
 from typing import List, Optional
 
 class HotelBusqueda(BaseModel):
+    agency_id: int | None = None
     destino: str = Field(..., min_length=2, max_length=80)
     check_in: date
     check_out: date
@@ -17,7 +18,7 @@ class HotelBusqueda(BaseModel):
 class HotelResultado(BaseModel):
     provider_id: int
     cadena_hotel: str
-
+    
     city_id: int
     hotel_id: int
     hotel_nombre: str
@@ -33,6 +34,7 @@ class HotelResultado(BaseModel):
 
 class HotelBusquedaResponse(BaseModel):
     destino: str
+    agency_id: int | None = None
     check_in: date
     check_out: date
     huespedes: int
