@@ -12,7 +12,7 @@ const HIGHLIGHTS = [
 
 const DESTINATIONS = [
   { name: "Guatemala",         img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80", desc: "Capital y corazón del país" },
-  { name: "Antigua Guatemala", img: "https://images.unsplash.com/photo-1548625149-720754cff8b4?w=500&q=80", desc: "Patrimonio de la Humanidad" },
+  { name: "Antigua Guatemala", img: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=500&q=80", desc: "Patrimonio de la Humanidad" },  
   { name: "Quetzaltenango",    img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80", desc: "La ciudad de los altos" },
   { name: "Flores",            img: "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=500&q=80", desc: "Puerta a Tikal" },
 ];
