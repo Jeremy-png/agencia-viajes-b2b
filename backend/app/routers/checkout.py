@@ -21,12 +21,13 @@ from app.services.hotelchain_client import (
 from app.services.audit_service import log_operation
 from app.services.pdf_service import generate_reservation_pdf, save_pdf, PDF_DIR
 from app.services.email_service import send_confirmation_email
+from app.services.sat_client import emitir_factura   # ← SAT
 
 router = APIRouter()
 
 
 # ──────────────────────────────────────────────────────────────────
-# PASO 1: Iniciar checkout 
+# PASO 1: Iniciar checkout
 # ──────────────────────────────────────────────────────────────────
 
 @router.post("/iniciar", response_model=CheckoutSession)
@@ -35,7 +36,6 @@ def iniciar_checkout(
     user: User    = Depends(get_current_user),
     db  : Session = Depends(get_db),
 ):
-
     noches = (data.check_out - data.check_in).days
     if noches <= 0:
         raise HTTPException(status_code=400, detail="check_out debe ser posterior a check_in")
@@ -59,7 +59,7 @@ def iniciar_checkout(
 
 
 # ──────────────────────────────────────────────────────────────────
-# PASO 2: Confirmar checkout (crea reserva real + PDF + email)
+# PASO 2: Confirmar checkout (crea reserva real + PDF + email + SAT)
 # ──────────────────────────────────────────────────────────────────
 
 @router.post("/confirmar", response_model=CheckoutConfirmado)
@@ -68,7 +68,6 @@ def confirmar_checkout(
     user: User    = Depends(get_current_user),
     db  : Session = Depends(get_db),
 ):
-
     noches = (data.check_out - data.check_in).days
     if noches <= 0:
         raise HTTPException(status_code=400, detail="check_out debe ser posterior a check_in")
@@ -112,7 +111,7 @@ def confirmar_checkout(
 
     # ── 3. Guardar Customer ─────────────────────────────────────
     card_digits = data.pago.numero_tarjeta.replace(" ", "").replace("-", "")
-    card_last4  = card_digits[-4:]  # últimos 4 únicamente
+    card_last4  = card_digits[-4:]
 
     customer = Customer(
         nombres          = data.cliente.nombres,
@@ -125,7 +124,8 @@ def confirmar_checkout(
         billing_address  = data.pago.direccion_cobro,
     )
     db.add(customer)
-    db.flush()  
+    db.flush()
+
     # ── 4. Calcular precios con markup ──────────────────────────
     if provider_total > 0:
         precio_base_noche  = round(provider_total / noches, 2)
@@ -169,23 +169,23 @@ def confirmar_checkout(
 
     # ── 6. Generar PDF ──────────────────────────────────────────
     pdf_data = {
-        "booking_code"    : provider_code,
-        "hotel_nombre"    : data.hotel_nombre,
-        "habitacion_tipo" : data.habitacion_tipo,
-        "destino"         : data.destino,
-        "check_in"        : str(data.check_in),
-        "check_out"       : str(data.check_out),
-        "noches"          : noches,
-        "huespedes"       : data.huespedes,
-        "moneda"          : data.moneda,
+        "booking_code"      : provider_code,
+        "hotel_nombre"      : data.hotel_nombre,
+        "habitacion_tipo"   : data.habitacion_tipo,
+        "destino"           : data.destino,
+        "check_in"          : str(data.check_in),
+        "check_out"         : str(data.check_out),
+        "noches"            : noches,
+        "huespedes"         : data.huespedes,
+        "moneda"            : data.moneda,
         "precio_final_noche": precio_final_noche,
-        "total"           : total_final,
-        "card_last4"      : card_last4,
-        "cliente_nombres" : data.cliente.nombres,
-        "cliente_apellidos": data.cliente.apellidos,
-        "cliente_email"   : data.cliente.email,
-        "agency_name"     : provider.name,
-        "confirmed_at"    : confirmed_at.isoformat(),
+        "total"             : total_final,
+        "card_last4"        : card_last4,
+        "cliente_nombres"   : data.cliente.nombres,
+        "cliente_apellidos" : data.cliente.apellidos,
+        "cliente_email"     : data.cliente.email,
+        "agency_name"       : provider.name,
+        "confirmed_at"      : confirmed_at.isoformat(),
     }
 
     pdf_filename = None
@@ -203,7 +203,36 @@ def confirmar_checkout(
         pdf_bytes = pdf_bytes,
     )
 
-    # ── 8. Auditoría ────────────────────────────────────────────
+    # ── 8. Emitir factura en SAT ────────────────────────────────
+    # No bloqueamos el checkout si el SAT falla — se registra el intento
+    sat_uuid = None
+    sat_numero = None
+    try:
+        descripcion_sat = (
+            f"{data.habitacion_tipo} — {data.hotel_nombre} "
+            f"({data.check_in} al {data.check_out})"
+        )
+        sat_resp = emitir_factura(
+            nombre_cliente    = f"{data.cliente.nombres} {data.cliente.apellidos}",
+            pasaporte_nit     = getattr(user, "numero_pasaporte", None) or data.cliente.email,
+            correo            = data.cliente.email,
+            tipo_servicio     = "HOTEL",
+            descripcion       = descripcion_sat,
+            noches            = noches,
+            precio_por_noche  = precio_final_noche,
+            total             = total_final,
+            direccion         = data.pago.direccion_cobro or "Guatemala",
+        )
+        if sat_resp:
+            sat_uuid   = sat_resp.get("uuid")
+            sat_numero = sat_resp.get("numeroFactura")
+            print(f"✅ SAT factura emitida: {sat_numero} UUID: {sat_uuid}")
+        else:
+            print("⚠️  SAT no disponible — reserva confirmada sin factura")
+    except Exception as e:
+        print(f"⚠️  Error SAT: {e}")
+
+    # ── 9. Auditoría ────────────────────────────────────────────
     log_operation(
         db,
         operation = "CREATE_RESERVATION",
@@ -219,6 +248,8 @@ def confirmar_checkout(
             "check_out"     : str(data.check_out),
             "total"         : total_final,
             "provider_id"   : data.provider_id,
+            "sat_uuid"      : sat_uuid,
+            "sat_numero"    : sat_numero,
         },
         channel   = "WEB",
         status    = "SUCCESS",
@@ -251,10 +282,6 @@ def download_pdf(
     user        : User    = Depends(get_current_user),
     db          : Session = Depends(get_db),
 ):
-    """
-    Descarga el PDF de una reserva por código de reserva.
-    Solo el dueño de la reserva o un ADMIN puede descargarlo.
-    """
     reserva = db.query(ReservaHotel).filter(
         ReservaHotel.provider_booking_code == booking_code,
         ReservaHotel.agency_id             == user.agency_id,
@@ -268,28 +295,27 @@ def download_pdf(
 
     filepath = os.path.join(PDF_DIR, f"reserva_{booking_code}.pdf")
     if not os.path.exists(filepath):
-        # Regenerar si no existe en disco
         customer = db.query(Customer).filter(
             Customer.customer_id == reserva.customer_id
         ).first()
         pdf_data = {
-            "booking_code"     : booking_code,
-            "hotel_nombre"     : reserva.hotel_nombre or "",
-            "habitacion_tipo"  : reserva.habitacion_tipo or "",
-            "destino"          : reserva.destino,
-            "check_in"         : str(reserva.check_in),
-            "check_out"        : str(reserva.check_out),
-            "noches"           : reserva.noches,
-            "huespedes"        : reserva.huespedes,
-            "moneda"           : reserva.moneda,
+            "booking_code"      : booking_code,
+            "hotel_nombre"      : reserva.hotel_nombre or "",
+            "habitacion_tipo"   : reserva.habitacion_tipo or "",
+            "destino"           : reserva.destino,
+            "check_in"          : str(reserva.check_in),
+            "check_out"         : str(reserva.check_out),
+            "noches"            : reserva.noches,
+            "huespedes"         : reserva.huespedes,
+            "moneda"            : reserva.moneda,
             "precio_final_noche": reserva.precio_final_noche,
-            "total"            : reserva.total,
-            "card_last4"       : customer.card_last4 if customer else "****",
-            "cliente_nombres"  : customer.nombres if customer else "",
-            "cliente_apellidos": customer.apellidos if customer else "",
-            "cliente_email"    : customer.email if customer else "",
-            "agency_name"      : "Agencia Viajes UNIS",
-            "confirmed_at"     : str(reserva.confirmed_at or reserva.created_at),
+            "total"             : reserva.total,
+            "card_last4"        : customer.card_last4 if customer else "****",
+            "cliente_nombres"   : customer.nombres if customer else "",
+            "cliente_apellidos" : customer.apellidos if customer else "",
+            "cliente_email"     : customer.email if customer else "",
+            "agency_name"       : "Agencia Viajes UNIS",
+            "confirmed_at"      : str(reserva.confirmed_at or reserva.created_at),
         }
         try:
             pdf_bytes = generate_reservation_pdf(pdf_data)
@@ -298,7 +324,7 @@ def download_pdf(
             raise HTTPException(status_code=500, detail=f"Error generando PDF: {e}")
 
     return FileResponse(
-        path             = filepath,
-        media_type       = "application/pdf",
-        filename         = f"reserva_{booking_code}.pdf",
+        path       = filepath,
+        media_type = "application/pdf",
+        filename   = f"reserva_{booking_code}.pdf",
     )
