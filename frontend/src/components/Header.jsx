@@ -41,9 +41,9 @@ export default function Header() {
         <Link to="/" className="brand">
           <div className="brand-badge">✈️</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.1 }}>ViajesB2B</div>
+            <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.1 }}>VIAJEXPRESS</div>
             <div style={{ fontSize: 10, color: "var(--muted)", fontWeight: 500 }}>
-              Agencia multi-proveedor
+              Hoteles internacionales 
             </div>
           </div>
         </Link>
@@ -52,8 +52,12 @@ export default function Header() {
         <nav style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, justifyContent: "center" }}>
           <Link to="/"       style={navLinkStyle("/")}>Inicio</Link>
           <Link to="/buscar" style={navLinkStyle("/buscar")}>Buscar hoteles</Link>
-          <Link to="/info/hoteles-afiliados" style={navLinkStyle("/info/hoteles-afiliados")}>Hoteles</Link>
-          <Link to="/info/cancelaciones"     style={navLinkStyle("/info/cancelaciones")}>Cancelaciones</Link>
+          <Link to="/info/hoteles-afiliados" style={navLinkStyle("/info/hoteles-afiliados")}>
+            Destinos
+          </Link>
+          <Link to="/info/cancelaciones" style={navLinkStyle("/info/cancelaciones")}>
+            Cancelaciones
+          </Link>
           {user?.role === "ADMIN" && (
             <Link to="/admin" style={{
               ...navLinkStyle("/admin"),
@@ -68,7 +72,6 @@ export default function Header() {
 
         {/* Derecha */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-
           {/* Carrito */}
           <Link to="/checkout" style={{ position: "relative" }}>
             <button className="btn" style={{ padding: "7px 12px", fontSize: 16 }}>
@@ -88,11 +91,8 @@ export default function Header() {
 
           {user ? (
             <div style={{ position: "relative" }}>
-              <button
-                className="btn"
-                onClick={() => setMenuOpen(o => !o)}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px" }}
-              >
+              <button className="btn" onClick={() => setMenuOpen(o => !o)}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px" }}>
                 <span style={{
                   width: 28, height: 28, borderRadius: "50%",
                   background: "linear-gradient(135deg, var(--brand), var(--accent))",
@@ -111,14 +111,10 @@ export default function Header() {
                 <span style={{ fontSize: 9, color: "var(--muted)" }}>▼</span>
               </button>
 
-              {/* Dropdown */}
               {menuOpen && (
                 <>
-                  {/* Overlay para cerrar */}
-                  <div
-                    style={{ position: "fixed", inset: 0, zIndex: 90 }}
-                    onClick={() => setMenuOpen(false)}
-                  />
+                  <div style={{ position: "fixed", inset: 0, zIndex: 90 }}
+                    onClick={() => setMenuOpen(false)} />
                   <div style={{
                     position: "absolute", right: 0, top: "calc(100% + 8px)",
                     background: "var(--surface)",
@@ -127,7 +123,6 @@ export default function Header() {
                     minWidth: 210, zIndex: 100,
                     boxShadow: "var(--shadow-lg)",
                   }}>
-                    {/* Info del usuario */}
                     <div style={{ padding: "8px 10px 10px" }}>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>
                         {user.nombres} {user.apellidos}
@@ -160,6 +155,7 @@ export default function Header() {
                           borderRadius: "var(--radius-sm)",
                           color: "var(--text-2)", fontSize: 13, fontWeight: 500,
                           transition: "all var(--transition)",
+                          textDecoration: "none",
                         }}
                         onMouseEnter={e => { e.currentTarget.style.background = "var(--brand-light)"; e.currentTarget.style.color = "var(--brand-dark)"; }}
                         onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-2)"; }}
@@ -169,7 +165,6 @@ export default function Header() {
                     ))}
 
                     <div className="hr" style={{ margin: "6px 0" }} />
-
                     <button onClick={handleLogout} className="btn btn-danger"
                       style={{ width: "100%", fontSize: 13 }}>
                       Cerrar sesión
@@ -184,7 +179,7 @@ export default function Header() {
                 <button className="btn" style={{ fontSize: 13 }}>Iniciar sesión</button>
               </Link>
               <Link to="/register">
-                <button className="btn-blue" style={{ fontSize: 13, padding: "8px 16px" }}>
+                <button className="btn-blue" style={{ fontSize: 13, padding: "8px 16px", borderRadius: 8 }}>
                   Registrarse
                 </button>
               </Link>

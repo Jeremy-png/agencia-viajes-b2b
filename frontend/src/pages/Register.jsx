@@ -99,7 +99,7 @@ export default function Register() {
           </Link>
           <h1 style={{ marginTop: 16, marginBottom: 6 }}>Crear cuenta</h1>
           <p className="muted">
-            Únete a ViajesB2B y reserva hoteles en todo Guatemala
+            Únete a VIAJEXPRESS y reserva hoteles en todo el mundo
           </p>
         </div>
 

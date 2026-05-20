@@ -9,8 +9,6 @@ export default function Footer() {
       marginTop: 48,
     }}>
       <div className="container" style={{ padding: "36px 20px 24px" }}>
-
-        {/* Grid principal */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -18,7 +16,7 @@ export default function Footer() {
           marginBottom: 28,
         }}>
 
-          {/* Logo + descripción */}
+          {/* Logo */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <div style={{
@@ -30,40 +28,47 @@ export default function Footer() {
                 ✈️
               </div>
               <span style={{ fontWeight: 800, fontSize: 16, color: "var(--text)" }}>
-                ViajesB2B
+                VIAJEXPRESS
               </span>
             </div>
-            <p style={{
-              fontSize: 13, lineHeight: 1.65,
-              color: "var(--text-2)", margin: 0,
-            }}>
-              Agencia de viajes digital multi-proveedor. Encuentra y reserva hoteles
-              en Guatemala y Centroamérica al mejor precio.
+            <p style={{ fontSize: 13, lineHeight: 1.65, color: "var(--text-2)", margin: 0 }}>
+              Agencia de viajes. Hoteles en Europa, América, Asia y Medio Oriente.
+              UNIS Guatemala.
             </p>
           </div>
 
           {/* Servicios */}
           <div>
-            <div style={{
-              fontWeight: 700, fontSize: 13, color: "var(--text)",
-              marginBottom: 14, letterSpacing: "0.2px",
-            }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)", marginBottom: 14 }}>
               Servicios
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { to: "/buscar",                    label: "Buscar hoteles" },
-                { to: "/info/hoteles-afiliados",    label: "Hoteles afiliados" },
-                { to: "/info/cancelaciones",        label: "Proceso de cancelación" },
+                { to: "/buscar",                 label: "Buscar hoteles" },
+                { to: "/info/hoteles-afiliados", label: "Hoteles afiliados" },
+                { to: "/info/cancelaciones",     label: "Proceso de cancelación" },
               ].map(l => (
-                <Link key={l.to} to={l.to} style={{
-                  fontSize: 13, color: "var(--text-2)",
-                  transition: "color var(--transition)",
-                }}
+                <Link key={l.to} to={l.to} style={{ fontSize: 13, color: "var(--text-2)", transition: "color var(--transition)" }}
                   onMouseEnter={e => e.currentTarget.style.color = "var(--brand-dark)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-2)"}
-                >
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-2)"}>
                   {l.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Destinos */}
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)", marginBottom: 14 }}>
+              Destinos
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {["Paris", "Nueva York", "Tokyo", "Dubai", "Barcelona", "Cancun"].map(d => (
+                <Link key={d} to={`/buscar?destino=${d}&check_in=${new Date().toISOString().split("T")[0]}&check_out=${new Date(Date.now()+86400000).toISOString().split("T")[0]}&huespedes=1`}
+                  style={{ fontSize: 13, color: "var(--text-2)", transition: "color var(--transition)" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "var(--brand-dark)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-2)"}>
+                  {d}
                 </Link>
               ))}
             </div>
@@ -71,10 +76,7 @@ export default function Footer() {
 
           {/* Empresa */}
           <div>
-            <div style={{
-              fontWeight: 700, fontSize: 13, color: "var(--text)",
-              marginBottom: 14,
-            }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)", marginBottom: 14 }}>
               Empresa
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -83,13 +85,9 @@ export default function Footer() {
                 { to: "/info/terminos",   label: "Términos y condiciones" },
                 { to: "/info/privacidad", label: "Política de privacidad" },
               ].map(l => (
-                <Link key={l.to} to={l.to} style={{
-                  fontSize: 13, color: "var(--text-2)",
-                  transition: "color var(--transition)",
-                }}
+                <Link key={l.to} to={l.to} style={{ fontSize: 13, color: "var(--text-2)", transition: "color var(--transition)" }}
                   onMouseEnter={e => e.currentTarget.style.color = "var(--brand-dark)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-2)"}
-                >
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-2)"}>
                   {l.label}
                 </Link>
               ))}
@@ -98,22 +96,17 @@ export default function Footer() {
 
           {/* Contacto */}
           <div>
-            <div style={{
-              fontWeight: 700, fontSize: 13, color: "var(--text)",
-              marginBottom: 14,
-            }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)", marginBottom: 14 }}>
               Contacto
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
                 { icon: "📞", text: "+502 2345-6789" },
-                { icon: "📧", text: "info@viajesb2b.gt" },
-                { icon: "📍", text: "Zona 10, Ciudad de Guatemala" },
+                { icon: "📧", text: "info@viajes.gt" },
+                { icon: "📍", text: "Ciudad de Guatemala, Guatemala" },
+                { icon: "🎓", text: "UNIS — Ingeniería en Sistemas" },
               ].map(({ icon, text }) => (
-                <div key={text} style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  fontSize: 13, color: "var(--text-2)",
-                }}>
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-2)" }}>
                   <span>{icon}</span>
                   <span>{text}</span>
                 </div>
@@ -122,18 +115,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Línea divisoria */}
-        <div style={{
-          height: 1, background: "var(--border)", margin: "0 0 20px",
-        }} />
+        <div style={{ height: 1, background: "var(--border)", margin: "0 0 20px" }} />
 
-        {/* Copyright */}
-        <div style={{
-          display: "flex", justifyContent: "space-between",
-          alignItems: "center", flexWrap: "wrap", gap: 12,
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div style={{ fontSize: 12, color: "var(--muted)" }}>
-            © {new Date().getFullYear()} ViajesB2B — Sistema académico UNIS
+            © {new Date().getFullYear()} VIAJEXPRESS — Sistema académico UNIS · Todos los derechos reservados
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
@@ -141,13 +127,9 @@ export default function Footer() {
               { to: "/info/privacidad",    label: "Privacidad" },
               { to: "/info/cancelaciones", label: "Cancelaciones" },
             ].map(l => (
-              <Link key={l.to} to={l.to} style={{
-                fontSize: 12, color: "var(--muted)",
-                transition: "color var(--transition)",
-              }}
+              <Link key={l.to} to={l.to} style={{ fontSize: 12, color: "var(--muted)", transition: "color var(--transition)" }}
                 onMouseEnter={e => e.currentTarget.style.color = "var(--brand-dark)"}
-                onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}
-              >
+                onMouseLeave={e => e.currentTarget.style.color = "var(--muted)"}>
                 {l.label}
               </Link>
             ))}
