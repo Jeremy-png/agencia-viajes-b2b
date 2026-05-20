@@ -1,18 +1,6 @@
 """
-Servicio de Captcha matemático.
+Captcha matemático.
 
-Genera un desafío del tipo "¿Cuánto es X + Y?" (o X * Y para más variedad).
-El ID del captcha y la respuesta correcta se guardan en un diccionario
-en memoria con TTL de 5 minutos.
-
-No requiere Redis ni ninguna dependencia externa.
-
-Uso:
-    captcha = generate_captcha()
-    # → {"captcha_id": "uuid", "pregunta": "¿Cuánto es 7 + 4?"}
-
-    ok = validate_captcha(captcha_id, 11)
-    # → True (y elimina el captcha de la cache para que no se reutilice)
 """
 import uuid
 import random
@@ -26,7 +14,7 @@ TTL_SECONDS = 300  # 5 minutos
 
 
 def _clean_expired() -> None:
-    """Elimina captchas vencidos de la cache."""
+    """ captchas vencidos de la cache."""
     now = time.time()
     expired = [k for k, v in _captcha_cache.items() if v["expires_at"] < now]
     for k in expired:
@@ -34,10 +22,7 @@ def _clean_expired() -> None:
 
 
 def generate_captcha() -> dict:
-    """
-    Genera un nuevo captcha matemático.
-    Devuelve: { captcha_id: str, pregunta: str }
-    """
+    """nuevo captcha matemático."""
     _clean_expired()
 
     a = random.randint(1, 20)
@@ -72,9 +57,6 @@ def generate_captcha() -> dict:
 def validate_captcha(captcha_id: str, answer: int) -> bool:
     """
     Valida la respuesta del usuario.
-    Si es correcta (o incorrecta), ELIMINA el captcha de la cache
-    para que no se pueda reutilizar.
-    Devuelve True si es válido, False en cualquier otro caso.
     """
     _clean_expired()
 
@@ -82,7 +64,6 @@ def validate_captcha(captcha_id: str, answer: int) -> bool:
     if not entry:
         return False  # No existe o expiró
 
-    # Eliminar siempre (un captcha = un intento)
     del _captcha_cache[captcha_id]
 
     if entry["expires_at"] < time.time():

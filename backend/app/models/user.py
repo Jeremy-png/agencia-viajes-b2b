@@ -1,15 +1,4 @@
-"""
-Modelo de Usuario.
-
-Roles disponibles (constantes en la clase Roles):
-  - ADMIN      : administrador/empleado del sistema
-  - USER       : visitante registrado (puede reservar y comentar)
-  - WEBSERVICE : cuenta de integración REST para sistemas externos
-  (ANONYMOUS no se almacena en BD, es simplemente "sin token")
-
-Campos requeridos por el spec:
-  email, password, nombres, apellidos, edad, pais_origen, numero_pasaporte
-"""
+"""Modelo de Usuario."""
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, ForeignKey
 from app.database.database import Base
 
@@ -31,7 +20,7 @@ class User(Base):
     email            = Column(String(120),  unique=True, index=True, nullable=False)
     password_hash    = Column(String(255),  nullable=False)
 
-    # ---- Datos personales (requeridos por el spec) ----
+    # ---- Datos personales  ----
     nombres          = Column(String(100),  nullable=False)
     apellidos        = Column(String(100),  nullable=False)
     edad             = Column(Integer,      nullable=False)

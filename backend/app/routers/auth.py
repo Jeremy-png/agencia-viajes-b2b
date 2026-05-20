@@ -1,21 +1,4 @@
-"""
-Router de autenticación y gestión de usuarios.
-
-Endpoints públicos:
-  POST /auth/captcha          → genera desafío matemático
-  POST /auth/register         → registro con captcha
-  POST /auth/login            → login OAuth2, devuelve JWT
-
-Endpoints autenticados:
-  GET  /auth/me               → datos del usuario actual
-
-Endpoints solo ADMIN:
-  GET  /auth/users            → listar usuarios de la agencia
-  GET  /auth/users/{id}       → detalle de un usuario
-  POST /auth/users/{id}/role  → cambiar rol (ADMIN / USER / WEBSERVICE)
-  POST /auth/users/{id}/deactivate → desactivar usuario
-  POST /auth/users/{id}/activate   → reactivar usuario
-"""
+"""Router de autenticación y gestión de usuarios."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -41,11 +24,7 @@ router = APIRouter()
 
 @router.get("/captcha", tags=["Auth"])
 def get_captcha():
-    """
-    Genera un desafío matemático para el registro.
-    Devuelve: { captcha_id, pregunta }
-    El frontend muestra la pregunta y el usuario escribe la respuesta.
-    """
+
     from app.core.captcha import generate_captcha
     return generate_captcha()
 
@@ -138,7 +117,7 @@ def list_users(
     admin    : User          = Depends(require_admin),
     db       : Session       = Depends(get_db),
 ):
-    """Lista todos los usuarios de la misma agencia del admin."""
+    """Lista todos los usuarios de la misma agencia."""
     q = db.query(User).filter(User.agency_id == admin.agency_id)
     if role:
         q = q.filter(User.role == role.upper())
@@ -153,7 +132,7 @@ def get_user(
     admin  : User    = Depends(require_admin),
     db     : Session = Depends(get_db),
 ):
-    """Detalle de un usuario (solo dentro de la misma agencia)."""
+    """Detalle de un usuario."""
     user = _get_user_in_agency(db, user_id, admin.agency_id)
     return user
 
@@ -165,13 +144,7 @@ def change_role(
     admin  : User           = Depends(require_admin),
     db     : Session        = Depends(get_db),
 ):
-    """
-    Cambia el rol de un usuario.
-    - USER       → puede reservar y comentar
-    - ADMIN      → puede administrar el sistema
-    - WEBSERVICE → cuenta de integración REST (para sistemas externos)
-    Un admin no puede cambiar su propio rol.
-    """
+    """Cambia el rol de un usuario."""
     if user_id == admin.user_id:
         raise HTTPException(status_code=400, detail="No puedes cambiar tu propio rol")
 
@@ -217,10 +190,7 @@ def activate_user(
 # ──────────────────────────────────────────────────────────────────
 
 def _get_user_in_agency(db: Session, user_id: int, agency_id: int) -> User:
-    """
-    Busca un usuario por ID y verifica que pertenece a la misma agencia.
-    Lanza 404 si no existe o es de otra agencia (no revelamos si existe en otra).
-    """
+
     user = db.query(User).filter(
         User.user_id  == user_id,
         User.agency_id == agency_id,

@@ -1,7 +1,4 @@
-"""
-Schemas de autenticación y usuario.
-  email, password, nombres, apellidos, edad, pais_origen, numero_pasaporte.
-"""
+"""Schemas de autenticación y usuario."""
 from pydantic import BaseModel, Field, EmailStr
 from typing import Literal
 from datetime import datetime

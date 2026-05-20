@@ -1,11 +1,4 @@
-"""
-Servicio de generación de PDF para reservas.
-
-Genera un PDF profesional con los datos de la reserva usando ReportLab.
-Devuelve bytes del PDF para:
-  - Adjuntarlo al email de confirmación
-  - Guardarlo y permitir descarga por URL
-"""
+"""Servicio de generación de PDF para reservas.RL"""
 import os
 import io
 from datetime import datetime
@@ -36,16 +29,7 @@ RED_CANCEL  = colors.HexColor("#dc2626")
 
 
 def generate_reservation_pdf(data: dict) -> bytes:
-    """
-    Genera el PDF de confirmación de reserva.
-
-    data esperado:
-      booking_code, hotel_nombre, habitacion_tipo, destino,
-      check_in, check_out, noches, huespedes, moneda, total,
-      precio_final_noche, card_last4,
-      cliente_nombres, cliente_apellidos, cliente_email,
-      agency_name, confirmed_at
-    """
+    """Genera el PDF de confirmación de reserva."""
     buffer = io.BytesIO()
 
     doc = SimpleDocTemplate(

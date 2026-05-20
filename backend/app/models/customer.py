@@ -1,11 +1,4 @@
-"""
-Modelo de datos del cliente al momento del checkout.
-
-Guardamos:
-  - Datos personales del pasajero/huésped
-  - Últimos 4 dígitos de tarjeta + nombre en tarjeta + dirección de cobro
-  - NUNCA el CVV ni el número completo de tarjeta
-"""
+"""Modelo de datos del cliente al momento del checkout."""
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, func
 from app.database.database import Base
 

@@ -1,12 +1,4 @@
-"""
-Modelo de Reserva de Hotel.
-
-Cambios en este lote:
-- Agrega customer_id (FK a customers) para ligar el checkout al cliente
-- Agrega confirmed_at para saber cuándo se confirmó el pago
-- hotel_codigo y habitacion_tipo ya no son nullable=False
-  (se llenan desde los datos de búsqueda en el service)
-"""
+"""Modelo de Reserva de Hotel."""
 from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, DateTime, func
 from app.database.database import Base
 

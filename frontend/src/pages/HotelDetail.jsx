@@ -87,7 +87,7 @@ export default function HotelDetail() {
     if (!user) { navigate("/login"); return; }
     addToCart({
       provider_id        : Number(providerId),
-      room_id            : room.id || room.roomId,
+      room_id            : room.id || room.roomTypeId,
       hotel_id           : Number(hotelId),
       hotel_nombre       : hotel.name,
       habitacion_tipo    : room.roomType,

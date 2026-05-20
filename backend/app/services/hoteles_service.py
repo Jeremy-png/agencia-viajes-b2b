@@ -10,7 +10,6 @@ from app.services.hotelchain_client import (
 )
 
 def g(obj: dict, *keys, default=None):
-    """Obtiene el primer valor existente de varias llaves posibles (case-insensitive manual)."""
     for k in keys:
         if k in obj and obj[k] is not None:
             return obj[k]
@@ -57,7 +56,6 @@ def buscar_hoteles_service(data: HotelBusqueda, db: Session, agency_id: int) -> 
     .all()
 )
 
-    # ✅ Si no hay providers activos, esto NO es "no hay hoteles", es "no hay configuración"
     if not providers:
         raise HTTPException(
             status_code=400,
@@ -127,7 +125,6 @@ def buscar_hoteles_service(data: HotelBusqueda, db: Session, agency_id: int) -> 
                 max_guests = int(g(r, "maxGuests", "MaxGuests"))
                 base_price = float(g(r, "basePricePerNight", "BasePricePerNight"))
             except Exception as e:
-                # Si un room viene raro, no mates todo: solo lo saltas
                 errores.append(f"{p.name} (id={p.provider_id}): room inválido en mapping -> {str(e)} | data={str(r)[:200]}")
                 continue
 
@@ -150,10 +147,9 @@ def buscar_hoteles_service(data: HotelBusqueda, db: Session, agency_id: int) -> 
                 )
             )
 
-    # ✅ Ordenar resultados por precio final (barato primero)
+    # Ordenar resultados por precio final 
     resultados.sort(key=lambda x: x.precio_final_noche)
 
-    # ✅ Si no hubo resultados y hubo errores: no lo ocultes
     if not resultados and errores:
         raise HTTPException(
             status_code=502,

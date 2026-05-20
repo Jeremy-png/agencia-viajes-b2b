@@ -1,14 +1,4 @@
-"""
-Router de Checkout.
-
-Flujo completo en 2 pasos:
-
-  POST /checkout/iniciar   → calcula totales, devuelve resumen (sin guardar nada)
-  POST /checkout/confirmar → crea la reserva real, genera PDF, envía email
-
-Endpoint extra:
-  GET  /checkout/pdf/{booking_code} → descarga el PDF de la reserva
-"""
+"""Router de Checkout."""
 import os
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
@@ -36,7 +26,7 @@ router = APIRouter()
 
 
 # ──────────────────────────────────────────────────────────────────
-# PASO 1: Iniciar checkout (preview sin guardar nada)
+# PASO 1: Iniciar checkout 
 # ──────────────────────────────────────────────────────────────────
 
 @router.post("/iniciar", response_model=CheckoutSession)
@@ -45,11 +35,7 @@ def iniciar_checkout(
     user: User    = Depends(get_current_user),
     db  : Session = Depends(get_db),
 ):
-    """
-    Calcula el total de la reserva y devuelve un resumen para mostrar
-    al usuario ANTES de pedirle los datos de pago.
-    No hace ninguna llamada al proveedor ni guarda nada en BD.
-    """
+
     noches = (data.check_out - data.check_in).days
     if noches <= 0:
         raise HTTPException(status_code=400, detail="check_out debe ser posterior a check_in")
@@ -82,16 +68,7 @@ def confirmar_checkout(
     user: User    = Depends(get_current_user),
     db  : Session = Depends(get_db),
 ):
-    """
-    Confirma la reserva:
-    1. Valida el proveedor
-    2. Llama al HotelChain para crear la reserva real
-    3. Guarda el Customer (datos personales + últimos 4 de tarjeta)
-    4. Guarda la ReservaHotel en BD
-    5. Genera PDF
-    6. Envía email de confirmación
-    7. Registra en auditoría
-    """
+
     noches = (data.check_out - data.check_in).days
     if noches <= 0:
         raise HTTPException(status_code=400, detail="check_out debe ser posterior a check_in")
@@ -146,11 +123,9 @@ def confirmar_checkout(
         card_last4       = card_last4,
         card_holder_name = data.pago.nombre_en_tarjeta,
         billing_address  = data.pago.direccion_cobro,
-        # CVV: NUNCA se guarda
     )
     db.add(customer)
-    db.flush()  # genera customer_id sin hacer commit aún
-
+    db.flush()  
     # ── 4. Calcular precios con markup ──────────────────────────
     if provider_total > 0:
         precio_base_noche  = round(provider_total / noches, 2)

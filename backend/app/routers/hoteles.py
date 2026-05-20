@@ -1,11 +1,4 @@
-"""
-Router de Hoteles.
-
-Endpoints:
-  POST /hoteles/buscar          → búsqueda multi-proveedor
-  GET  /hoteles/detalle/{provider_id}/{hotel_id} → detalle de hotel
-  GET  /hoteles/ciudades        → ciudades disponibles por proveedor
-"""
+"""Router de Hoteles."""
 import asyncio
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -140,10 +133,7 @@ def detalle_hotel(
     db         : Session       = Depends(get_db),
     user       : Optional[User] = Depends(get_optional_user),
 ):
-    """
-    Obtiene el detalle de un hotel desde el proveedor.
-    Incluye: info del hotel, amenidades, habitaciones con precio+markup, reseñas.
-    """
+
     agency_id = user.agency_id if user else 1
 
     provider = db.query(Provider).filter(

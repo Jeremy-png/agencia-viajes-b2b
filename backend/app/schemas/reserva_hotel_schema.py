@@ -1,7 +1,4 @@
-"""
-Schemas de Reserva Hotel actualizados.
-Incluye los nuevos campos: hotel_nombre, habitacion_tipo, customer_id, confirmed_at.
-"""
+"""Schemas de Reserva Hotel."""
 from pydantic import BaseModel, Field, model_validator
 from datetime import date, datetime
 from typing import Optional

@@ -1,15 +1,4 @@
-"""
-Router de Callbacks entrantes desde proveedores (HotelChain).
-
-Endpoint:
-  POST /callbacks/reservacion-cambio
-
-El HotelChain llama a este endpoint cuando cancela o modifica
-una reserva que fue creada por la agencia.
-
-Seguridad: X-Callback-Secret header — un secret compartido
-entre la agencia y el hotel (configurado en .env).
-"""
+"""Router de Callbacks entrantes desde proveedores (HotelChain)."""
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -43,13 +32,6 @@ async def recibir_cambio_reservacion(
 ):
     """
     Recibe notificación del HotelChain cuando cancela/modifica una reserva.
-
-    El hotel debe enviar el header:
-      X-Callback-Secret: <el mismo secret configurado en .env PROVIDER_CALLBACK_SECRET>
-
-    Si el secret no coincide devuelve 401.
-    Si la reserva no se encuentra en la BD local, devuelve 404 pero no falla
-    (puede ser una reserva de otro sistema).
     """
 
     # ── 1. Validar secret ─────────────────────────────────────────
@@ -66,7 +48,6 @@ async def recibir_cambio_reservacion(
     ).first()
 
     if not reserva:
-        # No la tenemos — puede ser de otra agencia, no es error
         return {
             "received"  : True,
             "processed" : False,

@@ -1,10 +1,5 @@
 """
 Dependencias de autenticación reutilizables en los routers.
-
-get_current_user   → cualquier usuario con JWT válido
-require_admin      → solo ADMIN
-require_webservice → solo WEBSERVICE
-get_optional_user  → devuelve None si no hay token (para rutas públicas)
 """
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -44,10 +39,7 @@ def get_optional_user(
     db   : Session       = Depends(get_db),
     token: Optional[str] = Depends(oauth2_scheme_optional),
 ) -> Optional[User]:
-    """
-    Como get_current_user pero no lanza error si no hay token.
-    Útil para rutas públicas que muestran info extra si el usuario está logueado.
-    """
+
     if not token:
         return None
     try:
@@ -62,21 +54,21 @@ def get_optional_user(
 
 
 def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Solo deja pasar a usuarios con rol ADMIN."""
+    """ usuarios con rol ADMIN."""
     if user.role != Roles.ADMIN:
         raise HTTPException(status_code=403, detail="Requiere rol ADMIN")
     return user
 
 
 def require_webservice(user: User = Depends(get_current_user)) -> User:
-    """Solo deja pasar a usuarios con rol WEBSERVICE."""
+    """usuarios con rol WEBSERVICE."""
     if user.role != Roles.WEBSERVICE:
         raise HTTPException(status_code=403, detail="Requiere rol WEBSERVICE")
     return user
 
 
 def require_admin_or_webservice(user: User = Depends(get_current_user)) -> User:
-    """Deja pasar a ADMIN o WEBSERVICE (útil para endpoints de integración)."""
+    """ADMIN o WEBSERVICE."""
     if user.role not in {Roles.ADMIN, Roles.WEBSERVICE}:
         raise HTTPException(status_code=403, detail="Requiere rol ADMIN o WEBSERVICE")
     return user

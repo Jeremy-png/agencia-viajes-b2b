@@ -4,6 +4,7 @@ import api from "../api/client";
 import { useCart } from "../cart/CartContext";
 import { useAuth } from "../auth/AuthContext";
 import { downloadReservaPdf } from "../api/pdfDownload";
+import SatFacturacion from '../components/sat/SatFacturacion';
 
 const STEPS = ["Resumen", "Huésped", "Pago", "Confirmación"];
 
@@ -416,6 +417,16 @@ export default function Checkout() {
                   value={`${confirm.moneda || cartSnapshot?.moneda} $${confirm.total || total}`}
                   highlight />
               </div>
+
+              {/* ── Componente SAT ─────────────────────────────────── */}
+              {confirm.reservation_id && (
+                <div style={{ marginTop: 32, marginBottom: 32 }}>
+                  <SatFacturacion 
+                    reservationId={confirm.reservation_id}
+                    onSuccess={() => alert('✅ Factura emitida en SAT')}
+                  />
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
                 {confirm.provider_booking_code && (

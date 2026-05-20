@@ -1,11 +1,4 @@
-"""
-Router de Reservas Hotel.
-
-Actualizado en este lote:
-- Cancelación ahora envía email al cliente
-- Todas las operaciones quedan en auditoría
-- Admin puede cancelar cualquier reserva de su agencia
-"""
+"""Router de Reservas Hotel."""
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
@@ -40,10 +33,7 @@ def get_reservas_hotel(
     date_from  : Optional[date] = Query(default=None),
     date_to    : Optional[date] = Query(default=None),
 ):
-    """
-    Lista reservas con filtros.
-    USER: solo las suyas. ADMIN: todas las de la agencia.
-    """
+
     scope_user_id = None if user.role == Roles.ADMIN else user.user_id
     return listar_reservas_hotel_filtradas(
         db,
@@ -77,11 +67,7 @@ def cancelar_reserva(
     db  : Session = Depends(get_db),
     user: User    = Depends(get_current_user),
 ):
-    """
-    Cancela una reserva en el proveedor y actualiza el estado local.
-    Envía email de cancelación al cliente si tenemos sus datos.
-    Registra la operación en auditoría.
-    """
+
     reserva = _get_reserva_accesible(db, reservation_id, user)
 
     if reserva.provider_status == "CANCELLED":
@@ -137,12 +123,7 @@ def cancelar_reserva(
 # ── Helper interno ─────────────────────────────────────────────────
 
 def _get_reserva_accesible(db: Session, reservation_id: int, user: User) -> ReservaHotel:
-    """
-    Devuelve la reserva si el usuario tiene acceso.
-    - Verifica que pertenece a la agencia del usuario.
-    - USER solo puede ver/cancelar las suyas.
-    - ADMIN puede ver/cancelar cualquiera de su agencia.
-    """
+    """Devuelve la reserva si el usuario tiene acceso."""
     reserva = db.query(ReservaHotel).filter(
         ReservaHotel.reservation_id == reservation_id
     ).first()

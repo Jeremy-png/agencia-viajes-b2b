@@ -1,17 +1,8 @@
-"""
-Configuración centralizada de la aplicación.
-
-Lee variables de entorno desde un archivo `.env` (gracias a python-dotenv)
-y las expone como atributos de la clase Settings.
-
-Uso:
-    from app.core.config import settings
-    print(settings.DATABASE_URL)
-"""
+"""Configuración centralizada de la aplicación."""
 import os
 from dotenv import load_dotenv
 
-# Carga .env desde el directorio actual o ancestros (busca hacia arriba)
+# Carga .env desde el directorio actual o ancestros
 load_dotenv()
 
 

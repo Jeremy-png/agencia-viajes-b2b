@@ -18,7 +18,6 @@ class ProviderCreate(BaseModel):
     ws_password: str | None = None
 
 class ProviderUpdate(BaseModel):
-# Todos opcionales porque en PUT/PATCH no siempre mandas todo
     name: Optional[str] = Field(None, min_length=2, max_length=100)
     provider_type: Optional[Literal["HOTEL"]] = None
     base_url: Optional[str] = Field(None, min_length=5, max_length=255)

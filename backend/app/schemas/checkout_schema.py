@@ -1,12 +1,4 @@
-"""
-Schemas del flujo de Checkout.
-
-Flujo:
-  1. Usuario busca hoteles → recibe lista de HotelResultado
-  2. Selecciona uno → POST /checkout/iniciar → recibe CheckoutSession
-  3. Llena datos personales + tarjeta → POST /checkout/confirmar → recibe CheckoutConfirmado
-  4. Se genera PDF y se envía email de confirmación
-"""
+"""Schemas del flujo de Checkout."""
 from pydantic import BaseModel, Field, field_validator
 from datetime import date, datetime
 from typing import Optional
@@ -31,10 +23,7 @@ class CheckoutIniciarRequest(BaseModel):
 
 
 class CheckoutSession(BaseModel):
-    """
-    Resumen de la reserva antes de pagar.
-    El frontend lo muestra en el paso de confirmación.
-    """
+    """Resumen de la reserva antes de pagar."""
     provider_id        : int
     room_id            : int
     hotel_nombre       : str
@@ -63,11 +52,7 @@ class DatosCliente(BaseModel):
 
 
 class DatosPago(BaseModel):
-    """
-    Datos de la tarjeta de crédito.
-    NUNCA guardamos el número completo ni el CVV.
-    Solo guardamos los últimos 4 dígitos y el nombre.
-    """
+    """Datos de la tarjeta de crédito."""
     numero_tarjeta   : str = Field(..., min_length=13, max_length=19,
                                    description="Número completo — solo guardamos últimos 4 dígitos")
     cvv              : str = Field(..., min_length=3, max_length=4,
@@ -94,7 +79,7 @@ class DatosPago(BaseModel):
 
 
 class CheckoutConfirmarRequest(BaseModel):
-    """Body completo para confirmar el pago y crear la reserva."""
+    """Body"""
     # Datos de la habitación (mismo que CheckoutIniciarRequest)
     provider_id        : int
     room_id            : int
@@ -117,7 +102,7 @@ class CheckoutConfirmarRequest(BaseModel):
 # ──────────────────────────────────────────────────────────────────
 
 class CheckoutConfirmado(BaseModel):
-    """Respuesta tras confirmar el pago exitosamente."""
+    """Respuesta"""
     reservation_id        : int
     provider_booking_code : str
     hotel_nombre          : str

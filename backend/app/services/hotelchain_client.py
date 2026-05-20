@@ -1,9 +1,7 @@
 import requests
 
 def hotelchain_login(base_url: str, email: str, password: str) -> str:
-    """
-    Login al HotelChain y devuelve JWT.
-    """
+    """Login al HotelChain y devuelve JWT."""
     url = f"{base_url}/api/auth/login"
     payload = {"email": email, "password": password}
 
@@ -34,20 +32,7 @@ def hotelchain_get_cities(base_url: str, token: str):
 
 
 def hotelchain_search_rooms(base_url: str, token: str, payload: dict):
-    """
-    POST /api/integration/search
-    payload esperado por el proveedor (ejemplo):
-    {
-      "CityId": 1,
-      "CheckIn": "2026-04-27T00:00:00",
-      "CheckOut": "2026-04-28T00:00:00",
-      "Guests": 1,
-      "MinPrice": null,
-      "MaxPrice": null,
-      "RoomTypeId": null,
-      "MinRating": null
-    }
-    """
+
     url = f"{base_url}/api/integration/search"
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -59,16 +44,7 @@ def hotelchain_search_rooms(base_url: str, token: str, payload: dict):
 
 
 def hotelchain_create_reservation(base_url: str, token: str, payload: dict) -> dict:
-    """
-    POST /api/integration/reservations
-    payload esperado por el proveedor:
-    {
-      "RoomId": 2,
-      "CheckIn": "2026-04-27T00:00:00",
-      "CheckOut": "2026-04-28T00:00:00",
-      "Guests": 1
-    }
-    """
+
     url = f"{base_url}/api/integration/reservations"
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -81,9 +57,7 @@ def hotelchain_create_reservation(base_url: str, token: str, payload: dict) -> d
 
 
 def hotelchain_get_reservation(base_url: str, token: str, code: str) -> dict:
-    """
-    GET /api/integration/reservations/{code}
-    """
+
     url = f"{base_url}/api/integration/reservations/{code}"
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -95,9 +69,7 @@ def hotelchain_get_reservation(base_url: str, token: str, code: str) -> dict:
 
 
 def hotelchain_cancel_reservation(base_url: str, token: str, code: str) -> dict:
-    """
-    POST /api/integration/reservations/{code}/cancel
-    """
+
     url = f"{base_url}/api/integration/reservations/{code}/cancel"
     headers = {"Authorization": f"Bearer {token}"}
 

@@ -5,15 +5,6 @@ Crea al arrancar (si no existen):
   - Agencia A  (agency_id=1)  →  admin: admin@agencia-a.com / Admin1234!
   - Agencia B  (agency_id=2)  →  admin: admin@agencia-b.com / Admin1234!
 
-Estos usuarios ADMIN pueden:
-  - Gestionar providers de su agencia
-  - Promover usuarios a ADMIN o WEBSERVICE
-  - Cancelar cualquier reserva de su agencia
-  - Generar facturas SAT (fase final)
-
-IMPORTANTE: en producción real cambiarías estas credenciales
-y no las dejarias hardcodeadas. Para este proyecto académico
-es aceptable y necesario para la demo.
 """
 from sqlalchemy.orm import Session
 from app.models.agency import Agency

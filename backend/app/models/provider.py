@@ -2,10 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
 from app.database.database import Base
 
 class Provider(Base):
-    """
-    Modelo SQLAlchemy = representación de la tabla 'providers' en MySQL.
-    Aquí definimos cómo se almacena un proveedor en la BD.
-    """
+
     __tablename__ = "providers"
 
     provider_id = Column(Integer, primary_key=True, index=True)

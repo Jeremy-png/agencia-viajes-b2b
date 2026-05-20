@@ -1,16 +1,10 @@
-"""
-Funciones de seguridad: hash de password y emisión de JWT.
-
-Antes vivía hardcoded. Ahora todo viene de app.core.config.settings
-(que a su vez lee desde .env).
-"""
+"""Funciones de seguridad: hash de password y emisión de JWT."""
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import jwt
 
 from app.core.config import settings
 
-# Compatibilidad con código existente que importa estas constantes:
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES

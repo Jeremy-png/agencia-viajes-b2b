@@ -1,12 +1,4 @@
-"""
-Servicio de Email usando SMTP de Gmail.
-
-Envía emails HTML con los datos de la reserva.
-Credenciales vienen del .env (SMTP_USER, SMTP_PASSWORD).
-
-Si el envío falla, loguea el error pero NO interrumpe el flujo
-de la reserva (el cliente ya tiene su confirmación en pantalla).
-"""
+"""Servicio de Email usando SMTP de Gmail."""
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText

@@ -1,11 +1,4 @@
-"""
-Modelo de Auditoría de Operaciones.
-
-El spec dice: "Toda operación efectuada a excepción de las búsquedas
-debe quedar registrada en la base de datos indicando fecha y hora."
-
-Registra: reservas creadas, cancelaciones, cambios de estado.
-"""
+"""Modelo de Auditoría de Operaciones."""
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, func
 from app.database.database import Base
 

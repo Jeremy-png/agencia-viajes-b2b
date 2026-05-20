@@ -15,6 +15,7 @@ from app.models import customer, operation_audit               # noqa: F401
 
 # Routers
 from app.routers import auth, agencies, providers, hoteles, reservas_hotel, checkout, callbacks
+from app.routers import sat_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -39,7 +40,7 @@ app.include_router(hoteles.router,        prefix="/hoteles",         tags=["Hote
 app.include_router(reservas_hotel.router, prefix="/reservas/hotel",  tags=["Reservas Hotel"])
 app.include_router(checkout.router,       prefix="/checkout",        tags=["Checkout"])
 app.include_router(callbacks.router,      prefix="/callbacks",       tags=["Callbacks"])
-
+app.include_router(sat_router.router, prefix="/sat", tags=["SAT"])
 
 @app.get("/", tags=["Health"])
 def root():
